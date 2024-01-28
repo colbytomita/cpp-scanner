@@ -258,33 +258,49 @@ void Scanner::advance()
 			nexttt = PLUS;
 			nexts = "+";
 		}
-		else if (buffer[0] == '-') {	// this also takes care of the negative floats
+		else if (buffer[0] == '-') {
 			addToBuffer(buffer, filestream);
-			// check to see if the next char is a num so I know if its a float or a minus
 			if (isNum(buffer[1])) {
-				// if it is a num then I know its a float
+				bool decimalBefore = false;
 				while (isNum(buffer[buffer.size() - 1]) || isDecimal(buffer[buffer.size() - 1])) {
+					if (isDecimal(buffer[buffer.size() - 1])) {
+						decimalBefore = true;
+					} else {
+						decimalBefore = false;
+					}
 					addToBuffer(buffer, filestream);
 				}
-				removeFromBuffer(buffer, filestream);
-				nexttt = FLOAT;
-				nexts = buffer;
+				if (decimalBefore) {
+					dealWithError(buffer);
+				} else {
+					removeFromBuffer(buffer, filestream);
+					nexttt = FLOAT;
+					nexts = buffer;
+				}
 			}
 			else {
-				// if it is not a num then I know its a minus
 				removeFromBuffer(buffer, filestream);
 				nexttt = MINUS;
 				nexts = "-";
 			}
 		}
 		else if (isNum(buffer[0])) {
-			// if it is a num then I know its a float
+			bool decimalBefore = false;
 			while (isNum(buffer[buffer.size() - 1]) || isDecimal(buffer[buffer.size() - 1])) {
+				if (isDecimal(buffer[buffer.size() - 1])) {
+					decimalBefore = true;
+				} else {
+					decimalBefore = false;
+				}
 				addToBuffer(buffer, filestream);
 			}
-			removeFromBuffer(buffer, filestream);
-			nexttt = FLOAT;
-			nexts = buffer;
+			if (decimalBefore) {
+				dealWithError(buffer);
+			} else {
+				removeFromBuffer(buffer, filestream);
+				nexttt = FLOAT;
+				nexts = buffer;
+			}
 		}
 		else if (buffer[0] == '%') {
 			nexttt = MOD;
